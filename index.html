@@ -10,25 +10,18 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        body {
-            margin: 0; padding: 0; overflow: hidden;
-            background-color: #f1f5f9;
-        }
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #f1f5f9; }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in-up {
-            animation: fadeInUp 0.3s ease-out forwards;
-        }
+        .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="flex justify-center items-center h-screen w-full">
-    <!-- 메인 컨테이너 -->
     <div class="w-full max-w-md h-full bg-slate-50 flex flex-col shadow-2xl relative overflow-hidden">
         
-        <!-- 헤더 -->
         <header class="bg-amber-400 pt-5 pb-4 px-4 shadow-sm z-10 flex flex-col items-center justify-center shrink-0 rounded-b-2xl">
             <h1 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
                 💌 우리 가족 원격 메모
@@ -38,7 +31,6 @@
             </p>
         </header>
 
-        <!-- 메시지 리스트 영역 -->
         <main id="message-container" class="flex-1 overflow-y-auto p-4 space-y-5 pb-10">
             <div class="text-center text-slate-400 text-sm mt-10 flex flex-col items-center gap-2">
                 <svg class="animate-spin h-6 w-6 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -46,9 +38,7 @@
             </div>
         </main>
 
-        <!-- 하단 입력 폼 영역 -->
         <footer class="bg-white border-t border-slate-200 p-3 shrink-0 pb-safe">
-            <!-- 수정 모드 알림 -->
             <div id="edit-indicator" class="hidden flex justify-between items-center px-2 mb-2 bg-amber-100/50 py-1.5 rounded-lg border border-amber-200">
                 <span class="text-xs text-amber-700 font-bold flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25-1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" /></svg>
@@ -71,7 +61,7 @@
         </footer>
     </div>
 
-    <!-- 삭제 확인 모달 -->
+    <!-- 삭제 모달 -->
     <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl p-6 w-full max-w-[300px] shadow-2xl animate-fade-in-up">
             <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
@@ -91,7 +81,7 @@
         const SHEET_GID = '0';
         const READ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
         
-        // ★ (중요) 기존에 쓰시던 URL과 똑같아 보여도 반드시 위 설명 1번에 따라 "새 배포"를 하셔야 작동합니다!
+        // ★ [중요] 기존에 사용하시던 앱스 스크립트 배포 주소를 따옴표 안에 넣어주세요!
         const WRITE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzc80cGh6vTPbiDF8UVwqKqPVlorbbK75MTU0yN07gSH7EQFxMaFDLbDHWEdj-jrvE/exec"; 
 
         const messageContainer = document.getElementById('message-container');
@@ -109,7 +99,7 @@
         let localTempMessages = [];
         let editingRowIndex = null;
         let deletingRowIndex = null;
-        let isSubmitting = false; // 중복 전송 방지용 변수
+        let isSubmitting = false;
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedAuthor = localStorage.getItem('memoAuthor');
@@ -122,7 +112,6 @@
             if(this.value === '') this.style.height = '48px';
         });
 
-        // 엔터키 입력 시 폼 제출 트리거
         memoInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -139,6 +128,12 @@
                 const currentDataHash = JSON.stringify(data.table.rows);
 
                 if (currentDataHash !== previousDataHash) {
+                    
+                    // 입력 중 리셋 방지 (부모용 앱에도 적용)
+                    const activeEl = document.activeElement;
+                    const isTyping = activeEl && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT');
+                    if (isTyping && previousDataHash !== "") return;
+
                     cachedRows = data.table.rows;
                     renderMessages();
                     previousDataHash = currentDataHash;
@@ -158,17 +153,18 @@
             }
 
             let html = '';
+            // 인덱스 1이 시트의 2행을 뜻함
             for (let i = 1; i < cachedRows.length; i++) {
                 const row = cachedRows[i];
-                if (!row || !row.c) continue; // 삭제되어서 null인 행은 무시
+                if (!row || !row.c) continue;
 
                 const author = row.c[0]?.v || '익명';
                 const content = row.c[1]?.v || '';
-                const reply = row.c[2]?.v || '';
+                const repliesString = row.c[2]?.v || '';
                 const rowIndex = i + 1; 
 
                 if (!content) continue;
-                html += createMessageCard(author, content, reply, rowIndex);
+                html += createMessageCard(author, content, repliesString, rowIndex);
             }
 
             localTempMessages.forEach(msg => {
@@ -181,9 +177,8 @@
             }, 50);
         }
 
-        function createMessageCard(author, content, reply, rowIndex) {
+        function createMessageCard(author, content, repliesString, rowIndex) {
             const formattedContent = content.replace(/\n/g, '<br>');
-            const formattedReply = reply ? reply.replace(/\n/g, '<br>') : '';
             const encodedContent = encodeURIComponent(content);
 
             let cardHtml = `
@@ -202,20 +197,38 @@
                     </div>
             `;
 
-            if (reply) {
-                cardHtml += `
-                    <div class="self-start max-w-[85%] bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-slate-100 mt-1 flex gap-2">
-                        <div class="mt-1">
-                            <div class="bg-emerald-100 p-1.5 rounded-full text-emerald-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd" /></svg>
+            // ★ [문제 해결 핵심 로직] 아이가 남긴 여러 답글 분리 로직 적용
+            if (repliesString) {
+                const replyArray = repliesString.split('|||'); // 구분자로 나누기
+                
+                replyArray.forEach(reply => {
+                    if(!reply.trim()) return;
+                    const formattedReply = reply.replace(/\n/g, '<br>');
+                    
+                    let childName = '아이의 답글';
+                    let childMsg = formattedReply;
+                    
+                    // "나윤: 네~" 형태에서 이름 추출
+                    const splitIndex = formattedReply.indexOf(': ');
+                    if (splitIndex > -1 && splitIndex < 15) {
+                        childName = formattedReply.substring(0, splitIndex);
+                        childMsg = formattedReply.substring(splitIndex + 2);
+                    }
+
+                    cardHtml += `
+                        <div class="self-start max-w-[85%] bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-slate-100 mt-1 flex gap-2">
+                            <div class="mt-1">
+                                <div class="bg-emerald-100 p-1.5 rounded-full text-emerald-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd" /></svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[11px] text-emerald-600 font-bold mb-0.5">${childName}</div>
+                                <div class="text-[14px] text-slate-700 leading-relaxed break-words">${childMsg}</div>
                             </div>
                         </div>
-                        <div>
-                            <div class="text-[11px] text-emerald-600 font-bold mb-0.5">아이의 답글</div>
-                            <div class="text-[14px] text-slate-700 leading-relaxed break-words">${formattedReply}</div>
-                        </div>
-                    </div>
-                `;
+                    `;
+                });
             }
 
             cardHtml += `</div>`;
@@ -244,7 +257,7 @@
 
         memoForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (isSubmitting) return; // 중복 제출 방지
+            if (isSubmitting) return;
 
             const author = authorInput.value.trim() || '익명';
             const content = memoInput.value.trim();
@@ -254,11 +267,10 @@
             localStorage.setItem('memoAuthor', author);
 
             if (editingRowIndex) {
-                const row = editingRowIndex;
+                const row = parseInt(editingRowIndex);
                 cancelEdit(); 
                 
-                // 화면에 수정한 내용 즉시 반영 (낙관적 UI 업데이트)
-                const targetRowIndex = row - 1;
+                const targetRowIndex = row - 2;
                 if (cachedRows[targetRowIndex] && cachedRows[targetRowIndex].c) {
                     if(!cachedRows[targetRowIndex].c[0]) cachedRows[targetRowIndex].c[0] = {v: ''};
                     if(!cachedRows[targetRowIndex].c[1]) cachedRows[targetRowIndex].c[1] = {v: ''};
@@ -269,7 +281,6 @@
 
                 await sendToSheet('edit', author, content, row);
             } else {
-                // 신규 등록
                 localTempMessages.push({ author, content });
                 renderMessages(); 
                 memoInput.value = '';
@@ -278,7 +289,7 @@
                 await sendToSheet('add', author, content, null);
             }
             
-            isSubmitting = false; // 제출 완료 후 락 해제
+            isSubmitting = false;
         });
 
         function prepareEdit(btn) {
@@ -313,10 +324,9 @@
         modalConfirmBtn.addEventListener('click', async () => {
             if(deletingRowIndex) {
                 modalConfirmBtn.innerText = '삭제 중...';
-                const rowToDelete = deletingRowIndex;
+                const rowToDelete = parseInt(deletingRowIndex);
                 
-                // 화면에서 즉시 숨기기 (낙관적 UI 업데이트)
-                cachedRows[rowToDelete - 1] = null;
+                cachedRows[rowToDelete - 2] = null;
                 renderMessages();
 
                 await sendToSheet('delete', null, null, rowToDelete);
