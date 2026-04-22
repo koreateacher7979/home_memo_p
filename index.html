@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>가족 원격 메모 (부모용)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            background-color: #f1f5f9;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center h-screen w-full">
+    <!-- 메인 컨테이너 -->
+    <div class="w-full max-w-md h-full bg-slate-50 flex flex-col shadow-2xl relative overflow-hidden">
+        
+        <!-- 헤더 -->
+        <header class="bg-amber-400 pt-5 pb-4 px-4 shadow-sm z-10 flex flex-col items-center justify-center shrink-0 rounded-b-2xl">
+            <h1 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+                💌 우리 가족 원격 메모
+            </h1>
+            <p class="text-[11px] text-slate-700 mt-2 font-medium bg-amber-300/50 px-3 py-1 rounded-full">
+                개발자: 가치있는 미래교육 연구소 대표 김병찬
+            </p>
+        </header>
+
+        <!-- 메시지 리스트 영역 -->
+        <main id="message-container" class="flex-1 overflow-y-auto p-4 space-y-5 pb-10">
+            <div class="text-center text-slate-400 text-sm mt-10 flex flex-col items-center gap-2">
+                <svg class="animate-spin h-6 w-6 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                데이터를 불러오는 중입니다...
+            </div>
+        </main>
+
+        <!-- 하단 입력 폼 영역 -->
+        <footer class="bg-white border-t border-slate-200 p-3 shrink-0 pb-safe">
+            <!-- 수정 모드 알림 -->
+            <div id="edit-indicator" class="hidden flex justify-between items-center px-2 mb-2 bg-amber-100/50 py-1.5 rounded-lg border border-amber-200">
+                <span class="text-xs text-amber-700 font-bold flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25-1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" /></svg>
+                    메모 수정 중...
+                </span>
+                <button type="button" onclick="cancelEdit()" class="text-xs text-slate-500 hover:text-slate-800 font-semibold bg-white px-2 py-1 rounded shadow-sm border border-slate-200">취소</button>
+            </div>
+            
+            <form id="memo-form" class="flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <input type="text" id="author-input" class="w-20 bg-slate-100 rounded-2xl px-3 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm text-center font-bold" placeholder="작성자" required>
+                    <textarea id="memo-input" rows="1" class="flex-1 bg-slate-100 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm resize-none overflow-hidden" placeholder="메모를 작성해주세요..." required></textarea>
+                    <button type="submit" id="submit-btn" class="bg-amber-400 hover:bg-amber-500 text-slate-800 p-3 rounded-2xl w-[48px] h-[48px] flex items-center justify-center transition-colors shrink-0 shadow-sm self-end">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                            <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </footer>
+    </div>
+
+    <!-- 삭제 확인 모달 -->
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-[300px] shadow-2xl animate-fade-in-up">
+            <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-red-500"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd" /></svg>
+                메모 삭제
+            </h3>
+            <p class="text-sm text-slate-600 mb-6">이 메모를 정말 삭제하시겠습니까?</p>
+            <div class="flex justify-end gap-2">
+                <button id="modal-cancel" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-200 transition-colors">취소</button>
+                <button id="modal-confirm" class="px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors shadow-sm shadow-red-500/30">삭제하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SPREADSHEET_ID = '1CzHqSavhYa4lDxaF5Mmrl0fbTCZ1VKuAf4te8uPAX-Q';
+        const SHEET_GID = '0';
+        const READ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
+        
+        // ★ (중요) 기존에 쓰시던 URL과 똑같아 보여도 반드시 위 설명 1번에 따라 "새 배포"를 하셔야 작동합니다!
+        const WRITE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz-Vs_xvMqk9XD_mbdkRJz7JlHZ0K69r-FJ1g8Cy86N95YfB9y66YU2OzBcW7W_BNI/exec"; 
+
+        const messageContainer = document.getElementById('message-container');
+        const memoForm = document.getElementById('memo-form');
+        const authorInput = document.getElementById('author-input');
+        const memoInput = document.getElementById('memo-input');
+        const editIndicator = document.getElementById('edit-indicator');
+
+        const modal = document.getElementById('confirm-modal');
+        const modalConfirmBtn = document.getElementById('modal-confirm');
+        const modalCancelBtn = document.getElementById('modal-cancel');
+
+        let previousDataHash = "";
+        let cachedRows = [];
+        let localTempMessages = [];
+        let editingRowIndex = null;
+        let deletingRowIndex = null;
+        let isSubmitting = false; // 중복 전송 방지용 변수
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedAuthor = localStorage.getItem('memoAuthor');
+            if (savedAuthor) authorInput.value = savedAuthor;
+        });
+
+        memoInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if(this.value === '') this.style.height = '48px';
+        });
+
+        // 엔터키 입력 시 폼 제출 트리거
+        memoInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                memoForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+        });
+
+        async function fetchMessages() {
+            try {
+                const response = await fetch(READ_URL + '&_=' + Date.now());
+                const text = await response.text();
+                const jsonString = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\);/)[1];
+                const data = JSON.parse(jsonString);
+                const currentDataHash = JSON.stringify(data.table.rows);
+
+                if (currentDataHash !== previousDataHash) {
+                    cachedRows = data.table.rows;
+                    renderMessages();
+                    previousDataHash = currentDataHash;
+                    localTempMessages = [];
+                }
+            } catch (error) {
+                console.error('데이터 동기화 오류:', error);
+            }
+        }
+
+        function renderMessages() {
+            if (!cachedRows || cachedRows.length <= 1) { 
+                if (localTempMessages.length === 0) {
+                    messageContainer.innerHTML = '<div class="text-center text-slate-400 text-sm mt-10">등록된 메모가 없습니다. 첫 메모를 남겨보세요!</div>';
+                    return;
+                }
+            }
+
+            let html = '';
+            for (let i = 1; i < cachedRows.length; i++) {
+                const row = cachedRows[i];
+                if (!row || !row.c) continue; // 삭제되어서 null인 행은 무시
+
+                const author = row.c[0]?.v || '익명';
+                const content = row.c[1]?.v || '';
+                const reply = row.c[2]?.v || '';
+                const rowIndex = i + 1; 
+
+                if (!content) continue;
+                html += createMessageCard(author, content, reply, rowIndex);
+            }
+
+            localTempMessages.forEach(msg => {
+                html += createMessageCard(msg.author, msg.content, '', null);
+            });
+
+            messageContainer.innerHTML = html;
+            setTimeout(() => {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }, 50);
+        }
+
+        function createMessageCard(author, content, reply, rowIndex) {
+            const formattedContent = content.replace(/\n/g, '<br>');
+            const formattedReply = reply ? reply.replace(/\n/g, '<br>') : '';
+            const encodedContent = encodeURIComponent(content);
+
+            let cardHtml = `
+                <div class="flex flex-col gap-1.5 w-full animate-fade-in-up">
+                    <div class="self-end max-w-[85%] bg-amber-200/60 rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm relative text-slate-800 group">
+                        <div class="flex justify-between items-end mb-1">
+                            <div class="text-[11px] text-amber-700 font-bold opacity-80">${author}</div>
+                            ${rowIndex ? `
+                            <div class="flex gap-2 text-[10px] text-slate-400">
+                                <button type="button" onclick="prepareEdit(this)" data-row="${rowIndex}" data-author="${author}" data-content="${encodedContent}" class="hover:text-amber-600 transition-colors bg-white/50 px-1.5 rounded">수정</button>
+                                <button type="button" onclick="requestDelete(${rowIndex})" class="hover:text-red-500 transition-colors bg-white/50 px-1.5 rounded">삭제</button>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="text-[15px] leading-relaxed break-words">${formattedContent}</div>
+                    </div>
+            `;
+
+            if (reply) {
+                cardHtml += `
+                    <div class="self-start max-w-[85%] bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm border border-slate-100 mt-1 flex gap-2">
+                        <div class="mt-1">
+                            <div class="bg-emerald-100 p-1.5 rounded-full text-emerald-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd" /></svg>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[11px] text-emerald-600 font-bold mb-0.5">아이의 답글</div>
+                            <div class="text-[14px] text-slate-700 leading-relaxed break-words">${formattedReply}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            cardHtml += `</div>`;
+            return cardHtml;
+        }
+
+        async function sendToSheet(action, author, content, row) {
+            if (!WRITE_WEB_APP_URL) return;
+            const formData = new FormData();
+            formData.append('action', action);
+            if(author) formData.append('author', author);
+            if(content) formData.append('content', content);
+            if(row) formData.append('row', row);
+
+            try {
+                await fetch(WRITE_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                setTimeout(fetchMessages, 800);
+            } catch (error) {
+                console.error("데이터 처리 실패:", error);
+            }
+        }
+
+        memoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (isSubmitting) return; // 중복 제출 방지
+
+            const author = authorInput.value.trim() || '익명';
+            const content = memoInput.value.trim();
+            if (!content) return;
+
+            isSubmitting = true; 
+            localStorage.setItem('memoAuthor', author);
+
+            if (editingRowIndex) {
+                const row = editingRowIndex;
+                cancelEdit(); 
+                
+                // 화면에 수정한 내용 즉시 반영 (낙관적 UI 업데이트)
+                const targetRowIndex = row - 1;
+                if (cachedRows[targetRowIndex] && cachedRows[targetRowIndex].c) {
+                    if(!cachedRows[targetRowIndex].c[0]) cachedRows[targetRowIndex].c[0] = {v: ''};
+                    if(!cachedRows[targetRowIndex].c[1]) cachedRows[targetRowIndex].c[1] = {v: ''};
+                    cachedRows[targetRowIndex].c[0].v = author;
+                    cachedRows[targetRowIndex].c[1].v = content;
+                    renderMessages();
+                }
+
+                await sendToSheet('edit', author, content, row);
+            } else {
+                // 신규 등록
+                localTempMessages.push({ author, content });
+                renderMessages(); 
+                memoInput.value = '';
+                memoInput.style.height = '48px';
+                
+                await sendToSheet('add', author, content, null);
+            }
+            
+            isSubmitting = false; // 제출 완료 후 락 해제
+        });
+
+        function prepareEdit(btn) {
+            editingRowIndex = btn.getAttribute('data-row');
+            authorInput.value = btn.getAttribute('data-author');
+            memoInput.value = decodeURIComponent(btn.getAttribute('data-content'));
+            
+            editIndicator.classList.remove('hidden');
+            memoInput.style.height = 'auto';
+            memoInput.style.height = (memoInput.scrollHeight) + 'px';
+            memoInput.focus();
+        }
+
+        function cancelEdit() {
+            editingRowIndex = null;
+            editIndicator.classList.add('hidden');
+            memoInput.value = '';
+            memoInput.style.height = '48px';
+            authorInput.value = localStorage.getItem('memoAuthor') || '';
+        }
+
+        function requestDelete(rowIndex) {
+            deletingRowIndex = rowIndex;
+            modal.classList.remove('hidden');
+        }
+
+        modalCancelBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            deletingRowIndex = null;
+        });
+
+        modalConfirmBtn.addEventListener('click', async () => {
+            if(deletingRowIndex) {
+                modalConfirmBtn.innerText = '삭제 중...';
+                const rowToDelete = deletingRowIndex;
+                
+                // 화면에서 즉시 숨기기 (낙관적 UI 업데이트)
+                cachedRows[rowToDelete - 1] = null;
+                renderMessages();
+
+                await sendToSheet('delete', null, null, rowToDelete);
+                
+                modal.classList.add('hidden');
+                modalConfirmBtn.innerText = '삭제하기';
+                deletingRowIndex = null;
+            }
+        });
+
+        fetchMessages();
+        setInterval(fetchMessages, 2000); 
+
+    </script>
+</body>
+</html>
